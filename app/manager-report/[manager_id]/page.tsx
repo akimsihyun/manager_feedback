@@ -17,7 +17,27 @@ interface PageProps {
     }>;
 }
 
+// Helper to resolve potentially Base64 encoded ID
+const resolveManagerId = (id: string) => {
+    if (!id) return id;
+    // If it's already numeric, just return it
+    if (/^\d+$/.test(id)) return id;
+
+    try {
+        // Handle URL encoded characters then try decoding Base64
+        const normalized = decodeURIComponent(id).trim();
+        const decoded = Buffer.from(normalized, 'base64').toString('utf-8');
+
+        // If the decoded result is numeric, use it
+        if (/^\d+$/.test(decoded)) return decoded;
+    } catch (e) {
+        // Not a valid Base64 or decoding failed
+    }
+    return id;
+};
+
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+    const { manager_id: raw_id } = await params;
     const resolvedSearchParams = await searchParams;
     const month = resolvedSearchParams.month || '2';
 
@@ -74,7 +94,8 @@ async function getManagerReport(
 }
 
 export default async function ManagerReportPage({ params, searchParams }: PageProps) {
-    const { manager_id } = await params;
+    const { manager_id: raw_manager_id } = await params;
+    const manager_id = resolveManagerId(raw_manager_id);
     const resolvedSearchParams = await searchParams;
 
     // origin detection

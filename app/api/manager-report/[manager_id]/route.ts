@@ -8,12 +8,26 @@ export async function GET(
 ) {
   try {
     // Await params for Next.js 15 compatibility
-    const { manager_id } = await params;
+    const { manager_id: raw_manager_id } = await params;
+
+    // Helper to resolve potentially Base64 encoded ID
+    const resolveManagerId = (id: string) => {
+      if (!id) return id;
+      if (/^\d+$/.test(id)) return id;
+      try {
+        const normalized = decodeURIComponent(id).trim();
+        const decoded = Buffer.from(normalized, 'base64').toString('utf-8');
+        if (/^\d+$/.test(decoded)) return decoded;
+      } catch (e) { }
+      return id;
+    };
+
+    const manager_id = resolveManagerId(raw_manager_id);
     const searchParams = request.nextUrl.searchParams;
     const year = parseInt(searchParams.get('year') || '2026');
     const month = parseInt(searchParams.get('month') || '2');
 
-    console.log(`[API] Fetching report for manager_id=${manager_id}, year=${year}, month=${month}`);
+    console.log(`[API] Fetching report for manager_id=${manager_id} (raw=${raw_manager_id}), year=${year}, month=${month}`);
 
     // Calculate date range: [startDate, nextMonthStart) (Stable style)
     const startDate = `${year}-${String(month).padStart(2, '0')}-01 00:00:00`;
