@@ -29,10 +29,10 @@ export async function GET(
       const managerQuery = `
         SELECT id, name 
         FROM manager 
-        WHERE id = ${manager_id}
+        WHERE id = ?
         LIMIT 1
       `;
-      managerResult = await executePlabQuery(managerQuery);
+      managerResult = await executePlabQuery(managerQuery, [manager_id]);
     } catch (err: any) {
       console.error('[API] Database lookup error:', err);
       // DNS / Network errors
@@ -46,7 +46,7 @@ export async function GET(
           {
             error: "DATA_SOURCE_UNREACHABLE",
             detail: err.message,
-            baseUrl: process.env.PLAB_API_BASE_URL ?? "https://playground.plab.football"
+            baseUrl: process.env.PLAB_API_BASE_URL ?? "https://vibe.techin.pe.kr"
           },
           { status: 502 }
         );
@@ -73,10 +73,10 @@ export async function GET(
     const matchCountQuery = `
       SELECT COUNT(*) as count
       FROM \`match\` m
-      WHERE m.manager_id = ${manager_id}
-        AND ${dateFilter}
+      WHERE m.manager_id = ?
+        AND m.schedule >= ? AND m.schedule < ?
     `;
-    const matchCountResult = await executePlabQuery(matchCountQuery);
+    const matchCountResult = await executePlabQuery(matchCountQuery, [manager_id, startDate, nextMonthStart]);
     const matchCount = matchCountResult[0]?.count || 0;
     console.log(`[API] Match count for ${year}-${month}: ${matchCount}`);
 
@@ -85,11 +85,11 @@ export async function GET(
       SELECT ROUND(AVG(mr.point), 1) as avg_point
       FROM manager_review mr
       JOIN \`match\` m ON mr.match_id = m.id
-      WHERE m.manager_id = ${manager_id}
-        AND ${dateFilter}
+      WHERE m.manager_id = ?
+        AND m.schedule >= ? AND m.schedule < ?
         AND mr.is_active = 1
     `;
-    const monthlyRatingResult = await executePlabQuery(monthlyRatingQuery);
+    const monthlyRatingResult = await executePlabQuery(monthlyRatingQuery, [manager_id, startDate, nextMonthStart]);
     const monthly_avg_point = monthlyRatingResult[0]?.avg_point || null;
     console.log(`[API] Monthly avg rating: ${monthly_avg_point}`);
 
@@ -112,13 +112,13 @@ export async function GET(
         SELECT ROUND(AVG(mr.point), 1) as avg_point
         FROM manager_review mr
         JOIN \`match\` m ON mr.match_id = m.id
-        WHERE m.manager_id = ${manager_id}
-          AND m.schedule >= '${tStartDate}'
-          AND m.schedule < '${tNextMonthStart}'
+        WHERE m.manager_id = ?
+          AND m.schedule >= ?
+          AND m.schedule < ?
           AND mr.is_active = 1
       `;
 
-      const trendResult = await executePlabQuery(trendQuery);
+      const trendResult = await executePlabQuery(trendQuery, [manager_id, tStartDate, tNextMonthStart]);
       chart_3months.push({
         month: `${trendYear}-${String(trendMonth).padStart(2, '0')}`,
         avg_point: trendResult[0]?.avg_point || null,
@@ -134,13 +134,13 @@ export async function GET(
       JOIN good_manager_type gmt ON gm.good_manager_type_id = gmt.id
       JOIN manager_review mr ON gm.manager_review_id = mr.id
       JOIN \`match\` m ON mr.match_id = m.id
-      WHERE m.manager_id = ${manager_id}
-        AND ${dateFilter}
+      WHERE m.manager_id = ?
+        AND m.schedule >= ? AND m.schedule < ?
       GROUP BY gmt.name
       ORDER BY count DESC
       LIMIT 5
     `;
-    const goodReviewResult = await executePlabQuery(goodReviewQuery);
+    const goodReviewResult = await executePlabQuery(goodReviewQuery, [manager_id, startDate, nextMonthStart]);
     const good_review_top5: ReviewItem[] = goodReviewResult.map(row => ({
       name: row.name,
       count: parseInt(row.count),
@@ -156,13 +156,13 @@ export async function GET(
       JOIN bad_manager_type bmt ON bm.bad_manager_type_id = bmt.id
       JOIN manager_review mr ON bm.manager_review_id = mr.id
       JOIN \`match\` m ON mr.match_id = m.id
-      WHERE m.manager_id = ${manager_id}
-        AND ${dateFilter}
+      WHERE m.manager_id = ?
+        AND m.schedule >= ? AND m.schedule < ?
       GROUP BY bmt.name
       ORDER BY count DESC
       LIMIT 10
     `;
-    const badReviewResult = await executePlabQuery(badReviewQuery);
+    const badReviewResult = await executePlabQuery(badReviewQuery, [manager_id, startDate, nextMonthStart]);
     let bad_review_top3: ReviewItem[] = badReviewResult.map(row => ({
       name: row.name,
       count: parseInt(row.count),

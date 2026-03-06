@@ -1,10 +1,10 @@
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import HeadlineSection from '@/components/report/HeadlineSection';
 import RotatingHeadline from '@/components/report/RotatingHeadline';
 import SummaryRows from '@/components/report/SummaryRows';
 import ReviewTabs from '@/components/report/ReviewTabs';
-
 import { ManagerReport } from '@/types/report';
 
 interface PageProps {
@@ -15,6 +15,20 @@ interface PageProps {
         year?: string;
         month?: string;
     }>;
+}
+
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+    const resolvedSearchParams = await searchParams;
+    const month = resolvedSearchParams.month || '2';
+
+    return {
+        title: `${month}월 매니저 리포트`,
+        description: `${month}월 매니저 활동 성과 및 피드백 리포트입니다.`,
+        openGraph: {
+            title: `${month}월 매니저 리포트 | 플랩풋볼`,
+            description: `${month}월 매니저 활동 성과 및 피드백 리포트입니다.`,
+        }
+    };
 }
 
 interface FetchError {
