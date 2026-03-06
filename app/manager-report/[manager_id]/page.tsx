@@ -4,7 +4,7 @@ import HeadlineSection from '@/components/report/HeadlineSection';
 import RotatingHeadline from '@/components/report/RotatingHeadline';
 import SummaryRows from '@/components/report/SummaryRows';
 import ReviewTabs from '@/components/report/ReviewTabs';
-import CTAButton from '@/components/report/CTAButton';
+
 import { ManagerReport } from '@/types/report';
 
 interface PageProps {
@@ -124,7 +124,7 @@ export default async function ManagerReportPage({ params, searchParams }: PagePr
                         </p>
                     </div>
                 </div>
-                <CTAButton />
+
             </div>
         );
     }
@@ -163,7 +163,7 @@ export default async function ManagerReportPage({ params, searchParams }: PagePr
                 badReviews={filteredBadReviews}
             />
 
-            <CTAButton />
+
         </div>
     );
 }
