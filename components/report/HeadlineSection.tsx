@@ -109,7 +109,7 @@ export default function HeadlineSection({ managerName, month, ratingTrend }: Hea
                     fontSize: '11px',
                     color: 'var(--color-text-tertiary)',
                     fontWeight: 500,
-                    marginTop: '4px',
+                    marginTop: '8px',
                     letterSpacing: '-0.2px',
                 }}>
                     최근 3개월 흐름
