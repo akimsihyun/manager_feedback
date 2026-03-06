@@ -12,7 +12,7 @@ export default function ReviewTabs({ goodReviews, badReviews }: ReviewTabsProps)
     const [activeTab, setActiveTab] = useState<'good' | 'bad'>('good');
 
     // Safety filter for "기타 할말이 있어요"
-    const filteredBadReviews = badReviews.filter(item => item.name !== "기타 할말이 있어요");
+    const filteredBadReviews = badReviews.filter(item => item.name !== "기타 할 말이 있어요");
 
     return (
         <div className="card">
