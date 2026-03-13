@@ -198,7 +198,19 @@ export default async function ManagerReportPage({ params, searchParams }: PagePr
                 badReviews={filteredBadReviews}
             />
 
-
+            <footer style={{
+                marginTop: 'var(--spacing-xl)',
+                paddingBottom: 'var(--spacing-xl)',
+                textAlign: 'center'
+            }}>
+                <p style={{
+                    fontSize: '12px',
+                    color: '#9ca3af',
+                    fontWeight: 400
+                }}>
+                    본 내용은 AI가 자동 생성한 참고용 안내입니다.
+                </p>
+            </footer>
         </div>
     );
 }
